@@ -13,6 +13,6 @@ full_name: Julian Wanner
 email: jwgithub@mailbox.org
 project_name: rts_package
 project_short_description: rts_package. A mlf-core based .
-version: 0.1.0-SNAPSHOT
+version: 1.0.0
 license: MIT
 framework: pytorch
