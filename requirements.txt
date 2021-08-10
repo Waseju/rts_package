@@ -10,4 +10,4 @@ torchmetrics~=0.4.1
 tifffile~=2021.4.8
 PyYAML~=5.4.1
 
-torchvision~=0.9.1
+torchvision~=0.10.0
