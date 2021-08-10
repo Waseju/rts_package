@@ -161,8 +161,8 @@ class NESTEDUNET(UNetsuper):
 
 
 class U2NET(UNetsuper):
-    def __init__(self, num_classes, len_test_set: int, hparams: dict, input_channels=1, min_filter=32, **kwargs):
-        super().__init__(num_classes, len_test_set, hparams, input_channels, min_filter, **kwargs)
+    def __init__(self, num_classes, len_test_set: int, input_channels=1, min_filter=32, **kwargs):
+        super().__init__(num_classes, len_test_set, input_channels, min_filter, **kwargs)
         self._make_layers(input_channels, min_filter)
 
     def forward(self, x):

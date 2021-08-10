@@ -1,13 +1,14 @@
 import os
 import pathlib
 import sys
+from urllib.error import URLError
 
 import click
 import numpy as np
 import tifffile as tiff
 import torch
-import yaml
 from rich import traceback, print
+from torchvision.datasets.utils import download_url
 
 from models.unet import U2NET
 
@@ -59,7 +60,7 @@ def write_results(predictions: np.ndarray, path_to_write_to) -> None:
     :param path_to_write_to: Path to write the predictions to
     """
     os.makedirs(pathlib.Path(path_to_write_to).parent.absolute(), exist_ok=True)
-    np.save(path_to_write_to,predictions)
+    np.save(path_to_write_to, predictions)
     pass
 
 
@@ -68,10 +69,8 @@ def get_pytorch_model(path_to_pytorch_model: str):
     Fetches the model of choice and creates a booster from it.
     :param path_to_pytorch_model: Path to the xgboost model1
     """
-    with open("hparams.yaml", 'r') as f:
-        model_yaml = yaml.load(f, Loader=yaml.FullLoader)
-    model = U2NET.load_from_checkpoint(path_to_pytorch_model, num_classes=5,
-                                       len_test_set=120, **model_yaml).to('cpu')
+    download()
+    model = U2NET.load_from_checkpoint(path_to_pytorch_model, num_classes=5, len_test_set=120, strict=False).to('cpu')
     model.eval()
     return model
 
@@ -82,6 +81,46 @@ def predict(data_to_predict, model):
     logits = model(img)[0]
     prediction = torch.argmax(logits.squeeze(), dim=0).cpu().detach().numpy().squeeze()
     return prediction
+
+
+def _check_exists() -> bool:
+    return os.path.exists(os.path.join("models",
+                                       "model.ckpt"))
+
+
+def download() -> None:
+    """Download the model if it doesn't exist in processed_folder already."""
+
+    if _check_exists():
+        return
+    mirrors = [
+        'https://drive.google.com/file/d/',
+    ]
+    resources = [
+        ("model.ckpt", "1ibTIFapVaTMog2HeXNHlGz2o4Ndqpupu", "f73c3d232fd1d1eae5547547b37ed4f1"),
+    ]
+    # download files
+    for filename, uniqueID, md5 in resources:
+        for mirror in mirrors:
+            url = "{}{}".format(mirror, uniqueID)
+            try:
+                print("Downloading {}".format(url))
+                download_url(
+                    url, root="models",
+                    filename=filename,
+                    md5=md5
+                )
+            except URLError as error:
+                print(
+                    "Failed to download (trying next):\n{}".format(error)
+                )
+                continue
+            finally:
+                print()
+            break
+        else:
+            raise RuntimeError("Error downloading {}".format(filename))
+    print('Done!')
 
 
 if __name__ == "__main__":

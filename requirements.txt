@@ -9,7 +9,5 @@ opencv-python~=4.5.2.52
 torchmetrics~=0.3.2
 tifffile~=2021.4.8
 PyYAML~=5.4.1
-captum~=0.4.0
-matplotlib~=3.4.2
-tqdm~=4.60.0
-seaborn~=0.11.1
+
+torchvision~=0.9.1
