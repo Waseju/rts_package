@@ -10,7 +10,7 @@ import torch
 from rich import traceback, print
 from torchvision.datasets.utils import download_url
 
-from models.unet import U2NET
+from rts_package.models.unet import U2NET
 
 WD = os.path.dirname(__file__)
 
@@ -20,8 +20,10 @@ WD = os.path.dirname(__file__)
 @click.option('-m', '--model', type=str,
               help='Path to an already trained XGBoost model. If not passed a default model will be loaded.')
 @click.option('-c/-nc', '--cuda/--no-cuda', type=bool, default=False, help='Whether to enable cuda or not')
+@click.option('-s/-ns', '--sanitize/--no-sanitize', type=bool, default=False,
+              help='Whether to remove model after prediction or not.')
 @click.option('-o', '--output', type=str, help='Path to write the output to')
-def main(input: str, model: str, cuda: bool, output: str):
+def main(input: str, model: str, cuda: bool, output: str, sanitize: bool):
     """Command-line interface for rts_package"""
 
     print(r"""[bold blue]
@@ -30,7 +32,7 @@ def main(input: str, model: str, cuda: bool, output: str):
 
     print('[bold blue]Run [green]rts_package --help [blue]for an overview of all commands\n')
     if not model:
-        model = get_pytorch_model(f'{WD}/models/model.ckpt')
+        model = get_pytorch_model(os.path.join(f'{WD}', "models", "model.ckpt"))
     else:
         model = get_pytorch_model(model)
     if cuda:
@@ -43,6 +45,8 @@ def main(input: str, model: str, cuda: bool, output: str):
     if output:
         print(f'[bold blue]Writing predictions to {output}')
         write_results(predictions, output)
+    if sanitize:
+        os.remove(os.path.join(f'{WD}', "models", "model.ckpt"))
 
 
 def read_data_to_predict(path_to_data_to_predict: str):
@@ -69,7 +73,7 @@ def get_pytorch_model(path_to_pytorch_model: str):
     Fetches the model of choice and creates a booster from it.
     :param path_to_pytorch_model: Path to the xgboost model1
     """
-    download()
+    download(path_to_pytorch_model)
     model = U2NET.load_from_checkpoint(path_to_pytorch_model, num_classes=5, len_test_set=120, strict=False).to('cpu')
     model.eval()
     return model
@@ -83,21 +87,20 @@ def predict(data_to_predict, model):
     return prediction
 
 
-def _check_exists() -> bool:
-    return os.path.exists(os.path.join("models",
-                                       "model.ckpt"))
+def _check_exists(filepath) -> bool:
+    return os.path.exists(filepath)
 
 
-def download() -> None:
+def download(filepath) -> None:
     """Download the model if it doesn't exist in processed_folder already."""
 
-    if _check_exists():
+    if _check_exists(filepath):
         return
     mirrors = [
-        'https://drive.google.com/file/d/',
+        'https://zenodo.org/record/',
     ]
     resources = [
-        ("model.ckpt", "1ibTIFapVaTMog2HeXNHlGz2o4Ndqpupu", "f73c3d232fd1d1eae5547547b37ed4f1"),
+        ("model.ckpt", "5181261/files/model.ckpt", "f73c3d232fd1d1eae5547547b37ed4f1"),
     ]
     # download files
     for filename, uniqueID, md5 in resources:
@@ -106,7 +109,7 @@ def download() -> None:
             try:
                 print("Downloading {}".format(url))
                 download_url(
-                    url, root="models",
+                    url, root=str(pathlib.Path(filepath).parent.absolute()),
                     filename=filename,
                     md5=md5
                 )
