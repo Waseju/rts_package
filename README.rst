@@ -24,7 +24,7 @@ rts_package
         :alt: Dependabot Enabled
 
 
-rts_package. A mlf-core based .
+rts_package.
 
 
 * Free software: MIT
@@ -34,7 +34,7 @@ rts_package. A mlf-core based .
 Features
 --------
 
-* TODO
+* Conducts prediction for A. thaliana root tissue.
 
 Credits
 -------
