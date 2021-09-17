@@ -72,6 +72,6 @@ setup(
     setup_requires=setup_requirements,
     tests_require=test_requirements,
     url='https://github.com/waseju/rts_package',
-    version='1.0.3',
+    version='1.0.4',
     zip_safe=False,
 )
