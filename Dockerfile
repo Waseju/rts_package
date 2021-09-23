@@ -5,6 +5,6 @@ RUN apk update
 RUN apk add make automake gcc g++ git libc-dev
 
 RUN pip install --upgrade pip setuptools wheel
-RUN pip install rts_package==1.0.3
+RUN pip install rts_package==1.1.0
 
 CMD rts_package
