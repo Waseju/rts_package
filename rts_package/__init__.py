@@ -2,4 +2,4 @@
 
 __author__ = """Julian Wanner"""
 __email__ = 'jwgithub@mailbox.org'
-__version__ = '1.1.1'
+__version__ = '1.1.7'
