@@ -2,6 +2,7 @@ import click
 import numpy as np
 import os
 import pathlib
+import glob
 import sys
 import tifffile as tiff
 import torch
@@ -39,7 +40,7 @@ def main(input: str, model: str, cuda: bool, output: str, sanitize: bool):
     if os.path.isdir(input):
         input_list = glob.glob(os.path.join(input, "*"))
         for inputs in input_list:
-            file_prediction(inputs, model, inputs.replace(input, output))
+            file_prediction(inputs, model, inputs.replace(input, output).replace(".tif",""))
     else:
         file_prediction(input, model, output)
     if sanitize:
