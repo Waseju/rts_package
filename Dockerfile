@@ -4,6 +4,6 @@ FROM python:3.8.12-slim-bullseye
 RUN apt update
 
 RUN pip install --upgrade pip setuptools wheel
-RUN pip install rts_package==1.1.1
+RUN pip install rts-package==1.1.7
 
 CMD rts_package
