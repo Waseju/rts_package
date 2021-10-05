@@ -1,16 +1,14 @@
+import click
+import numpy as np
 import os
 import pathlib
 import sys
-from urllib.error import URLError
-
-import click
-import numpy as np
 import tifffile as tiff
 import torch
 from rich import traceback, print
-from torchvision.datasets.utils import download_url
-
 from rts_package.models.unet import U2NET
+from torchvision.datasets.utils import download_url
+from urllib.error import URLError
 
 WD = os.path.dirname(__file__)
 
@@ -38,6 +36,17 @@ def main(input: str, model: str, cuda: bool, output: str, sanitize: bool):
     if cuda:
         model.cuda()
     print('[bold blue] Parsing data')
+    if os.path.isdir():
+        input_list = glob.glob(os.path.join(input,"*"))
+        for inputs in input_list:
+            file_prediction(inputs, model, inputs.replace(input, output))
+    else:
+        file_prediction(input, model, output)
+    if sanitize:
+        os.remove(os.path.join(f'{WD}', "models", "model.ckpt"))
+
+
+def file_prediction(input, model, output):
     data_to_predict = read_data_to_predict(input)
     print('[bold blue] Performing predictions')
     predictions = predict(data_to_predict, model)
@@ -45,8 +54,6 @@ def main(input: str, model: str, cuda: bool, output: str, sanitize: bool):
     if output:
         print(f'[bold blue]Writing predictions to {output}')
         write_results(predictions, output)
-    if sanitize:
-        os.remove(os.path.join(f'{WD}', "models", "model.ckpt"))
 
 
 def read_data_to_predict(path_to_data_to_predict: str):
