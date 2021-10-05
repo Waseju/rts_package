@@ -37,7 +37,7 @@ def main(input: str, model: str, cuda: bool, output: str, sanitize: bool):
         model.cuda()
     print('[bold blue] Parsing data')
     if os.path.isdir():
-        input_list = glob.glob(input)
+        input_list = glob.glob(os.path.join(input,"*"))
         for inputs in input_list:
             file_prediction(inputs, model, inputs.replace(input, output))
     else:
