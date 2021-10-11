@@ -1,5 +1,5 @@
 rich~=10.11.0
-click~=8.0.1
+click~=8.0.3
 
 setuptools~=58.2.0
 numpy~=1.21.2
