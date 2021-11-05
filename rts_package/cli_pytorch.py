@@ -31,7 +31,7 @@ def main(input: str, model: str, cuda: bool, output: str, sanitize: bool):
 
     print('[bold blue]Run [green]rts_package --help [blue]for an overview of all commands\n')
     if not model:
-        model = get_pytorch_model(os.path.join(f'{WD}', "models", "model.ckpt"))
+        model = get_pytorch_model(os.path.join(f'{os.getcwd()}', "models", "model.ckpt"))
     else:
         model = get_pytorch_model(model)
     if cuda:
