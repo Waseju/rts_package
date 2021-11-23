@@ -1,8 +1,8 @@
 import click
+import glob
 import numpy as np
 import os
 import pathlib
-import glob
 import sys
 import tifffile as tiff
 import torch
@@ -21,8 +21,9 @@ WD = os.path.dirname(__file__)
 @click.option('-c/-nc', '--cuda/--no-cuda', type=bool, default=False, help='Whether to enable cuda or not')
 @click.option('-s/-ns', '--sanitize/--no-sanitize', type=bool, default=False,
               help='Whether to remove model after prediction or not.')
-@click.option('-o', '--output', type=str, help='Path to write the output to')
-def main(input: str, model: str, cuda: bool, output: str, sanitize: bool):
+@click.option('-suf', '--suffix', type=str, help='Path to write the output to')
+@click.option('-o', '--output', default="", required=True, type=str, help='Path to write the output to')
+def main(input: str, suffix: str, model: str, cuda: bool, output: str, sanitize: bool):
     """Command-line interface for rts_package"""
 
     print(r"""[bold blue]
@@ -40,7 +41,7 @@ def main(input: str, model: str, cuda: bool, output: str, sanitize: bool):
     if os.path.isdir(input):
         input_list = glob.glob(os.path.join(input, "*"))
         for inputs in input_list:
-            file_prediction(inputs, model, inputs.replace(input, output).replace(".tif",""))
+            file_prediction(inputs, model, inputs.replace(input, output).replace(".tif", suffix))
     else:
         file_prediction(input, model, output)
     if sanitize:
@@ -51,10 +52,8 @@ def file_prediction(input, model, output):
     data_to_predict = read_data_to_predict(input)
     print('[bold blue] Performing predictions')
     predictions = predict(data_to_predict, model)
-    print(predictions)
-    if output:
-        print(f'[bold blue]Writing predictions to {output}')
-        write_results(predictions, output)
+    print(f'[bold blue]Writing predictions to {output}')
+    write_results(predictions, output)
 
 
 def read_data_to_predict(path_to_data_to_predict: str):
@@ -79,7 +78,7 @@ def write_results(predictions: np.ndarray, path_to_write_to) -> None:
 def get_pytorch_model(path_to_pytorch_model: str):
     """
     Fetches the model of choice and creates a booster from it.
-    :param path_to_pytorch_model: Path to the xgboost model1
+    :param path_to_pytorch_model: Path to the Pytorch model1
     """
     download(path_to_pytorch_model)
     model = U2NET.load_from_checkpoint(path_to_pytorch_model, num_classes=5, len_test_set=120, strict=False).to('cpu')
